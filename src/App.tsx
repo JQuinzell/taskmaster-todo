@@ -1,12 +1,10 @@
-import { useQuery } from 'convex/react'
-import { api } from '../convex/_generated/api'
 import { SidebarInset, SidebarProvider } from './components/ui/sidebar'
 import { AppSidebar } from './components/app-sidebar'
 import { SiteHeader } from './components/site-header'
+import { TaskProvider } from './TaskProvider'
+import { TaskList } from './TaskList'
 
 function App() {
-  const tasks = useQuery(api.tasks.get)
-
   return (
     <SidebarProvider
       style={
@@ -16,22 +14,19 @@ function App() {
         } as React.CSSProperties
       }
     >
-      <AppSidebar variant='inset' />
-      <SidebarInset>
-        <SiteHeader />
-        <div className='flex flex-1 flex-col'>
-          <div className='@container/main flex flex-1 flex-col gap-2'>
-            <div className='flex flex-col gap-4 py-4 md:gap-6 md:py-6'>
-              {tasks?.map((task) => (
-                <div key={task._id} className='flex gap-2'>
-                  <div className='flex-1'>{task.text}</div>
-                  <div className='flex-none'>{task.status}</div>
-                </div>
-              ))}
+      <TaskProvider>
+        <AppSidebar variant='inset' />
+        <SidebarInset>
+          <SiteHeader />
+          <div className='flex flex-1 flex-col'>
+            <div className='@container/main flex flex-1 flex-col gap-2'>
+              <div className='flex flex-col gap-4 py-4 md:gap-6 md:py-6'>
+                <TaskList />
+              </div>
             </div>
           </div>
-        </div>
-      </SidebarInset>
+        </SidebarInset>
+      </TaskProvider>
     </SidebarProvider>
   )
 }
