@@ -3,16 +3,30 @@ import { Checkbox } from './components/ui/checkbox'
 import { Label } from './components/ui/label'
 import { Separator } from './components/ui/separator'
 import { useTasks } from './TaskProvider'
+import { useMutation } from 'convex/react'
+import { api } from '../convex/_generated/api'
 
 export function TaskList() {
   const { tasks } = useTasks()
+  const updateTaskStatus = useMutation(api.tasks.updateStatus)
+
   return (
     <div>
       <Separator />
       {tasks.map((task) => (
         <Fragment key={task._id}>
           <Label className='flex gap-2 items-center p-2'>
-            <Checkbox id={task._id} />
+            <Checkbox
+              id={task._id}
+              checked={task.status === 'completed'}
+              onClick={() =>
+                updateTaskStatus({
+                  id: task._id,
+                  status:
+                    task.status === 'completed' ? 'not-started' : 'completed',
+                })
+              }
+            />
             <p>{task.text}</p>
           </Label>
           <Separator />
