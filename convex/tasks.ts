@@ -12,10 +12,12 @@ export const get = query({
 export const create = mutation({
   args: {
     text: v.string(),
+    // TODO: how to validate it is an ISO date
+    dueDate: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const taskId = await ctx.db.insert('tasks', {
-      text: args.text,
+      ...args,
       status: 'not-started',
     })
     return taskId

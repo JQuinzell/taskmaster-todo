@@ -15,15 +15,27 @@ import { api } from '../../convex/_generated/api'
 import { useMutation } from 'convex/react'
 import { Plus } from 'lucide-react'
 import { useState } from 'react'
+import { DatePicker } from './date-picker'
+import z from 'zod'
+
+const taskFormSchema = z.object({
+  name: z.string(),
+  date: z.iso.datetime().optional(),
+})
 
 export function CreateTaskDialog() {
   const [isOpen, setIsOpen] = useState(false)
   const createTask = useMutation(api.tasks.create)
 
   async function handleSubmit(formData: FormData) {
-    console.log('handle submit')
-    console.log(formData)
-    await createTask({ text: formData.get('name') as string })
+    const data = taskFormSchema.parse({
+      ...Object.fromEntries(formData),
+      date: formData.get('date') || undefined,
+    })
+    await createTask({
+      text: data.name,
+      dueDate: data.date,
+    })
     setIsOpen(false)
   }
 
@@ -44,6 +56,9 @@ export function CreateTaskDialog() {
             <div className='grid gap-3'>
               <Label htmlFor='name-1'>Name</Label>
               <Input id='name-1' name='name' />
+            </div>
+            <div className='grid gap-3'>
+              <DatePicker label='Due Date' name='date' />
             </div>
           </div>
           <DialogFooter>

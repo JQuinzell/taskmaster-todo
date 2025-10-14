@@ -10,5 +10,7 @@ export default defineSchema({
   tasks: defineTable({
     text: v.string(),
     status: taskStatus,
+    // TODO: how to better support dates?
+    dueDate: v.optional(v.string()),
   }),
 })
