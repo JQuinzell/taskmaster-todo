@@ -1,5 +1,5 @@
-import { Infer, v } from 'convex/values'
-import { mutation, MutationCtx, query, QueryCtx } from './_generated/server'
+import { type Infer, v } from 'convex/values'
+import { mutation, type MutationCtx, query } from './_generated/server'
 import { taskDueDate, taskStatus } from './schema'
 import { addDays } from 'date-fns'
 
