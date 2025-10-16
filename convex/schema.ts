@@ -6,11 +6,18 @@ export const taskStatus = v.union(
   v.literal('completed')
 )
 
+export const taskDueDate = v.object({
+  date: v.string(),
+  repeat: v.optional(
+    v.union(v.literal('weekly'), v.literal('daily'), v.literal('never'))
+  ),
+})
+
 export default defineSchema({
   tasks: defineTable({
     text: v.string(),
     status: taskStatus,
     // TODO: how to better support dates?
-    dueDate: v.optional(v.string()),
+    dueDate: v.optional(taskDueDate),
   }),
 })

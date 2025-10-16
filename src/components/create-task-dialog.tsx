@@ -17,10 +17,18 @@ import { Plus } from 'lucide-react'
 import { useState } from 'react'
 import { DatePicker } from './date-picker'
 import z from 'zod'
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from './ui/select'
 
 const taskFormSchema = z.object({
   name: z.string(),
   date: z.iso.datetime().optional(),
+  repeats: z.enum(['weekly', 'daily', 'never']).optional(),
 })
 
 export function CreateTaskDialog() {
@@ -32,9 +40,12 @@ export function CreateTaskDialog() {
       ...Object.fromEntries(formData),
       date: formData.get('date') || undefined,
     })
+    const date = data.date
     await createTask({
       text: data.name,
-      dueDate: data.date,
+      dueDate: date
+        ? { date: date, repeat: data.repeats ?? 'never' }
+        : undefined,
     })
     setIsOpen(false)
   }
@@ -54,11 +65,24 @@ export function CreateTaskDialog() {
           </DialogHeader>
           <div className='grid gap-4'>
             <div className='grid gap-3'>
-              <Label htmlFor='name-1'>Name</Label>
-              <Input id='name-1' name='name' />
+              <Label htmlFor='name'>Name</Label>
+              <Input id='name' name='name' />
             </div>
             <div className='grid gap-3'>
               <DatePicker label='Due Date' name='date' />
+            </div>
+            <div className='grid gap-3'>
+              <Label htmlFor='repeats'>Repeats</Label>
+              <Select name='repeats'>
+                <SelectTrigger className='w-[180px]'>
+                  <SelectValue placeholder='Never Repeats' />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value='weekly'>Weekly</SelectItem>
+                  <SelectItem value='daily'>Daily</SelectItem>
+                  <SelectItem value='never'>Never</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
           <DialogFooter>

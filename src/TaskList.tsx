@@ -34,7 +34,7 @@ export function TaskList() {
             </Label>
             {task.dueDate && (
               <Badge variant='secondary' className='ml-auto'>
-                {intlFormatDistance(task.dueDate, new Date())}
+                {intlFormatDistance(task.dueDate.date, new Date())}
               </Badge>
             )}
           </div>
