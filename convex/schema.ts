@@ -20,4 +20,7 @@ export default defineSchema({
     // TODO: how to better support dates?
     dueDate: v.optional(taskDueDate),
   }),
+  users: defineTable({
+    name: v.string(),
+  }),
 })
