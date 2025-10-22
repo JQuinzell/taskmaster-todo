@@ -13,14 +13,18 @@ export const taskDueDate = v.object({
   ),
 })
 
+export const task = v.object({
+  text: v.string(),
+  status: taskStatus,
+  // TODO: how to better support dates?
+  dueDate: v.optional(taskDueDate),
+})
+
+export const user = v.object({
+  name: v.string(),
+})
+
 export default defineSchema({
-  tasks: defineTable({
-    text: v.string(),
-    status: taskStatus,
-    // TODO: how to better support dates?
-    dueDate: v.optional(taskDueDate),
-  }),
-  users: defineTable({
-    name: v.string(),
-  }),
+  tasks: defineTable(task),
+  users: defineTable(user),
 })
