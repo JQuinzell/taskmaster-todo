@@ -38,13 +38,13 @@ export function CreateTaskDialog() {
     const data = taskFormSchema.parse({
       ...Object.fromEntries(formData),
       date: formData.get('date') || undefined,
+      repeats: formData.get('repeats') || undefined,
     })
     const date = data.date
     await createTask({
       text: data.name,
-      dueDate: date
-        ? { date: date, repeat: data.repeats ?? 'never' }
-        : undefined,
+      dueDate: date,
+      recurrence: data.repeats,
     })
     setIsOpen(false)
   }

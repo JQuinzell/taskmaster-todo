@@ -6,18 +6,23 @@ export const taskStatus = v.union(
   v.literal('completed')
 )
 
-export const taskDueDate = v.object({
-  date: v.string(),
-  repeat: v.optional(
-    v.union(v.literal('weekly'), v.literal('daily'), v.literal('never'))
-  ),
-})
+export const taskRecurrence = v.union(
+  v.literal('weekly'),
+  v.literal('daily'),
+  v.literal('never')
+)
 
 export const task = v.object({
   text: v.string(),
   status: taskStatus,
   // TODO: how to better support dates?
-  dueDate: v.optional(taskDueDate),
+  dueDate: v.optional(v.string()),
+  templateId: v.optional(v.id('taskTemplates')),
+})
+
+export const taskTemplate = v.object({
+  text: v.string(),
+  recurrence: v.optional(taskRecurrence),
 })
 
 export const user = v.object({
@@ -27,4 +32,5 @@ export const user = v.object({
 export default defineSchema({
   tasks: defineTable(task),
   users: defineTable(user),
+  taskTemplates: defineTable(taskTemplate),
 })

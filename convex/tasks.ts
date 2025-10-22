@@ -1,7 +1,8 @@
 import { type Infer, v } from 'convex/values'
 import { mutation, type MutationCtx, query } from './_generated/server'
-import { taskDueDate, taskStatus } from './schema'
+import { taskRecurrence, taskStatus, taskTemplate } from './schema'
 import { addDays } from 'date-fns'
+import { Id } from './_generated/dataModel'
 
 export const get = query({
   args: {},
@@ -10,13 +11,28 @@ export const get = query({
   },
 })
 
-function createTask(
+async function createTask(
   ctx: MutationCtx,
-  args: { text: string; dueDate?: Infer<typeof taskDueDate> }
+  args: {
+    text: string
+    dueDate?: string
+    recurrence?: Infer<typeof taskRecurrence>
+    templateId?: Id<'taskTemplates'>
+  }
 ) {
+  const { recurrence, ...taskArgs } = args
+  // TODO: dont really like this logic
+  let templateId = args.templateId
+  if (recurrence) {
+    templateId = await ctx.db.insert('taskTemplates', {
+      recurrence: recurrence,
+      text: taskArgs.text,
+    })
+  }
   return ctx.db.insert('tasks', {
-    ...args,
+    ...taskArgs,
     status: 'not-started',
+    templateId,
   })
 }
 
@@ -24,7 +40,8 @@ export const create = mutation({
   args: {
     text: v.string(),
     // TODO: how to validate it is an ISO date
-    dueDate: v.optional(taskDueDate),
+    dueDate: v.optional(v.string()),
+    recurrence: v.optional(taskRecurrence),
   },
   handler: async (ctx, args) => {
     const taskId = await createTask(ctx, args)
@@ -49,24 +66,25 @@ export const updateStatus = mutation({
   },
   handler: async (ctx, args) => {
     await ctx.db.patch(args.id, { status: args.status })
-    const task = await ctx.db.get(args.id)
-    if (!task) return
+    // TODO: want a better way to assert this state instead of ignoring null (even if I know it's there)
+    const task = (await ctx.db.get(args.id))!
+    if (!task.templateId) return
+    const template = (await ctx.db.get(task.templateId))!
+
     if (
       args.status === 'completed' &&
       task.dueDate &&
-      task.dueDate.repeat !== 'never'
+      template.recurrence !== 'never'
     ) {
       const nextDueDate = getNextDueDate(
-        new Date(task.dueDate.date),
-        task.dueDate.repeat ?? 'never'
+        new Date(task.dueDate),
+        template.recurrence ?? 'never'
       )
 
       await createTask(ctx, {
         text: task.text,
-        dueDate: {
-          date: nextDueDate.toISOString(),
-          repeat: task.dueDate.repeat,
-        },
+        dueDate: nextDueDate.toISOString(),
+        templateId: task.templateId,
       })
     }
   },
