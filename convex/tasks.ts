@@ -1,8 +1,8 @@
 import { type Infer, v } from 'convex/values'
 import { mutation, type MutationCtx, query } from './_generated/server'
-import { taskRecurrence, taskStatus, taskTemplate } from './schema'
+import { taskRecurrence, taskStatus } from './schema'
 import { addDays } from 'date-fns'
-import { Id } from './_generated/dataModel'
+import { type Id } from './_generated/dataModel'
 
 export const get = query({
   args: {},
