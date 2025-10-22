@@ -23,6 +23,7 @@ export const task = v.object({
 export const taskTemplate = v.object({
   text: v.string(),
   recurrence: v.optional(taskRecurrence),
+  activeTask: v.optional(v.id('tasks')),
 })
 
 export const user = v.object({
