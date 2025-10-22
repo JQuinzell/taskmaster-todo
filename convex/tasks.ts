@@ -21,25 +21,25 @@ async function createTask(
   }
 ) {
   const { recurrence, ...taskArgs } = args
-  // TODO: I really dont like this logic. Need to more neatly handle the condition of creating a template
-  let createdTemplateId: Id<'taskTemplates'> | undefined
-  if (recurrence) {
-    createdTemplateId = await ctx.db.insert('taskTemplates', {
-      recurrence: recurrence,
-      text: taskArgs.text,
-    })
-  }
-  const templateId = createdTemplateId || args.templateId
+  
+  const templateId = recurrence
+    ? await ctx.db.insert('taskTemplates', {
+        recurrence,
+        text: taskArgs.text,
+      })
+    : args.templateId
+  
   const taskId = await ctx.db.insert('tasks', {
     ...taskArgs,
     status: 'not-started',
     templateId,
   })
+  
   if (templateId) {
-    ctx.db.patch(templateId, { activeTask: taskId })
+    await ctx.db.patch(templateId, { activeTask: taskId })
   }
-  return taskId
-}
+  
+  return taskId}
 
 export const create = mutation({
   args: {
